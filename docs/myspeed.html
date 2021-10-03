@@ -15,9 +15,13 @@
       </el-header>
       <el-main>
         <el-form inline label-width="80px">
-          <el-form-item v-for="item in config" v-bind:label="item.name">
+          <span v-for="item in config">
+            <el-divider v-if="item.divider"><</el-divider>
+
+          <el-form-item  v-bind:label="item.name">
             <el-input-number v-model="item.value"></el-input-number>
           </el-form-item>
+        </span>
         </el-form>
         <el-table stripe :data="tableData" style="width: 100%">
           <el-table-column prop="skill" label="技能" width="180">
@@ -60,6 +64,7 @@
     value: 0
   },  {
     name: "幻兽-急救",
+    divider: true,
     speed: 1.4,
     value: 0
   }, {
@@ -91,6 +96,9 @@
       tableData() {
         const ret = []
         for (item of config) {
+          if (item.value === 0) {
+            continue
+          }
           ret.push({
             skill: item.name,
             speed: item.speed,
