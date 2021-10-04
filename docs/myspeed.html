@@ -14,14 +14,23 @@
         <h1>队伍出手速度计算</h1>
       </el-header>
       <el-main>
-        <el-form inline label-width="80px">
+        <el-form inline label-width="90px">
           <span v-for="item in config">
-            <el-divider v-if="item.divider"><</el-divider>
-
-          <el-form-item  v-bind:label="item.name">
-            <el-input-number v-model="item.value"></el-input-number>
-          </el-form-item>
-        </span>
+            <el-divider v-if="item.divider">{{item.divider}}</el-divider>
+            <el-form-item v-bind:label="item.name">
+              <el-input-number v-model="item.value"></el-input-number>
+            </el-form-item>
+            <el-form-item v-if="item.is_guaiwu" label="快速选择">
+              <el-select v-model="item.value" placeholder="请选择">
+                <el-option
+                  v-for="map in maps"
+                  :key="map.label"
+                  :label="map.label"
+                  :value="map.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </span>
         </el-form>
         <el-table stripe :data="tableData" style="width: 100%">
           <el-table-column prop="skill" label="技能" width="180">
@@ -30,7 +39,7 @@
           </el-table-column>
           <el-table-column prop="value" label="敏捷">
           </el-table-column>
-          <el-table-column prop="result" label="出手速度">
+          <el-table-column prop="result" label="实际出手速度">
           </el-table-column>
         </el-table>
       </el-main>
@@ -43,43 +52,68 @@
 <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
 <script>
   const config = [{
-    name: "BBS-兽神",
-    speed: 0.7,
+    divider: "战士",
+    name: "刀战-凤翼",
+    speed: 1,
     value: 0
-  },  {
+  }, {
+    divider: "修士",
     name: "法师-武神",
     speed: 1,
+    value: 0
+  }, {
+    name: "法师-流爆",
+    speed: 0.7,
     value: 0
   }, {
     name: "僧侣-456",
     speed: 0.7,
     value: 0
-  },  {
+  }, {
+    name: "僧侣-大火刀",
+    speed: 1.5,
+    value: 0
+  }, {
     name: "僧侣-漩涡",
     speed: 1.1,
     value: 0
-  },  {
-    name: "刀战-凤翼",
-    speed: 1,
+  }, {
+    name: "暗使-黑洞",
+    speed: 0.7,
     value: 0
-  },  {
+  }, {
+    divider: "旅人",
+    name: "BBS-兽神",
+    speed: 0.7,
+    value: 0
+  }, {
+    name: "老板-白金",
+    speed: 1.2,
+    value: 0
+  }, {
+    name: "格斗-幻空",
+    speed: 1.1,
+    value: 0
+  }, {
+    divider: "幻兽",
     name: "幻兽-急救",
-    divider: true,
     speed: 1.4,
     value: 0
   }, {
     name: "幻兽-神刃",
     speed: 1.25,
     value: 0
-  },{
+  }, {
     name: "幻兽-狂乱",
     speed: 1.1,
     value: 0
-  },{
+  }, {
     name: "幻兽-恐吓",
     speed: 1.2,
     value: 0
-  },{
+  }, {
+    divider: "怪物",
+    is_guaiwu: true,
     name: "怪物-敏捷",
     speed: 1,
     value: 0
@@ -89,7 +123,15 @@
     data() {
       return {
         labelPosition: 'right',
-        config: config
+        config: config,
+        maps: [
+          {label: "威彩", value: 171},
+          {label: "鬼三", value: 208},
+          {label: "龙2", value: 125},
+          {label: "龙3", value: 244},
+          {label: "洞1", value: 305},
+          {label: "洞2", value: 305},
+        ]
       };
     },
     computed: {
