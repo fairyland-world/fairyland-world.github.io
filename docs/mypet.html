@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+  <div id="app">
+    <el-container style="max-width: 1200px; margin:0 auto">
+      <el-header>
+        <h1>宠物降级计算</h1>
+      </el-header>
+      <el-main>
+        <el-form inline label-width="90px">
+          <el-form-item label="初始等级">
+            <el-input-number v-model="initLevel"></el-input-number>
+          </el-form-item>
+          <el-form-item label="初始数值">
+            <el-input-number v-model="initValue"></el-input-number>
+          </el-form-item>
+          <el-form-item label="成长倍率">
+            <el-input-number v-model="rate"></el-input-number>
+          </el-form-item>
+
+        </el-form>
+        <el-form inline label-width="90px">
+          <el-form-item label="初始道具">
+            <el-select v-model="initFood" placeholder="请选择">
+              <el-option v-for="map in maps" :key="map.label" :label="map.label" :value="map.label">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="pushConfig(-1)">+</el-button>
+          </el-form-item>
+        </el-form>
+
+        <el-form inline label-width="90px" v-for="(item, index) in config" :key="index">
+          <el-form-item label="等级">
+            <el-input-number v-model="item.level"></el-input-number>
+          </el-form-item>
+          <el-form-item label="次数">
+            <el-input-number v-model="item.times"></el-input-number>
+          </el-form-item>
+          <el-form-item label="降级道具">
+            <el-select v-model="item.food" placeholder="请选择">
+              <el-option v-for="map in maps" :key="map.label" :label="map.label" :value="map.label">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-button type="primary"  @click="pushConfig(index)">+</el-button>
+          <el-button type="primary"  @click="removeConfig(index)">-</el-button>
+        </el-form>
+        <el-table :data="tableData" style="width: 100%">
+          <el-table-column prop="food" label="降级道具">
+          </el-table-column>
+          <el-table-column prop="level" label="等级" width="180">
+          </el-table-column>
+          <el-table-column prop="valueBefore" label="降级前属性">
+          </el-table-column>
+          <el-table-column prop="valueAfter" label="降级后1级属性">
+          </el-table-column>
+          <el-table-column prop="value100" label="降级后100级属性">
+          </el-table-column>
+          <el-table-column prop="value150" label="降级后150级属性">
+          </el-table-column>
+        </el-table>
+      </el-main>
+    </el-container>
+  </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.zhimg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+<script>
+  const config = []
+  const downData = {
+    "咖啡": [6, 6, 8],
+    "汽水": [5, 5, 10],
+    "可乐": [4, 4, 12],
+    "香槟": [3, 3, 14],
+    "开水": [2, 2, 16],
+    "鸡精": [1.5, 1.5, 22],
+    "参汤": [4 / 3, 4 / 3, 28]
+  }
+
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        labelPosition: 'right',
+        config: config,
+        initLevel: 70,
+        initValue: 260,
+        rate: 3.8,
+        initFood: "咖啡",
+        maps: [
+          { label: "咖啡", value: 0 },
+          { label: "汽水", value: 1 },
+          { label: "可乐", value: 2 },
+          { label: "香槟", value: 3 },
+          { label: "开水", value: 4 },
+          { label: "鸡精", value: 5 },
+          { label: "参汤", value: 6 },
+        ]
+      };
+    },
+    methods: {
+      pushConfig(idx) {
+        let data
+        if (idx === -1) {
+          data = {
+            level: 100,
+            times: 1,
+            food: "咖啡"
+          }
+        }
+        else {
+          data = {...this.config[idx]}
+        }
+        this.config.splice(idx + 1, 0, data)
+      },
+      removeConfig(idx) {
+        this.config.splice(idx, 1)
+      },
+      calcAfter(lv, value, food) {
+        let cfg = downData[food]
+        result = Math.floor(lv / cfg[0]) + Math.floor(value / cfg[1]) + cfg[2]
+        return result
+      },
+      calcBefore(lv, value) {
+        return value + Math.floor((lv - 1) * this.rate)
+      }
+    },
+    computed: {
+      tableData() {
+        let valueAfter = this.calcAfter(this.initLevel, this.initValue, this.initFood)
+        let valueBefore = this.initValue
+        const ret = [{
+          level: this.initLevel,
+          food: this.initFood,
+          valueBefore: valueBefore,
+          valueAfter: valueAfter,
+          value100:  Math.floor(valueAfter + this.rate * 99),
+          value150:  Math.floor(valueAfter + this.rate * 149)
+        }]
+        for (item of this.config) {
+          time = 0
+          while (time < item.times) {
+            valueBefore = this.calcBefore(item.level, valueAfter)
+            valueAfter = this.calcAfter(item.level, valueBefore, item.food)
+            ret.push({
+              level: item.level,
+              food: item.food,
+              valueBefore: valueBefore,
+              valueAfter: valueAfter,
+              value100:  Math.floor(valueAfter + this.rate * 99),
+              value150:  Math.floor(valueAfter + this.rate * 149)
+            })
+            time += 1
+          }
+        }
+        console.log(ret)
+        return ret
+      }
+    }
+  })
+</script>
+<style>
+  .el-table .guaiwu {
+    background: orange;
+  }
+</style>
+
+</html>
