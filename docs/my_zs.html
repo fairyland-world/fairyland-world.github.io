@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+
+  <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <!-- <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css"> -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+</head>
+
+<body>
+  <div id="app">
+    <el-container style="max-width: 1200px; margin:0 auto">
+      <el-header>
+        <h1>转生计算</h1>
+      </el-header>
+      <el-main>
+        <el-card >
+          <div slot="header" class="clearfix">
+            <h2>设置</h2>
+          </div>
+        <el-form inline label-width="90px" v-for="(item, index) in config" :key="index">
+          <el-form-item label="等级">
+            <el-input-number v-model="item.level"></el-input-number>
+          </el-form-item>
+          <el-form-item label="属性">
+            <el-input-number v-model="item.value"></el-input-number>
+          </el-form-item>
+          <el-button v-if="index>0" type="primary"  @click="removeConfig(index)">-</el-button>
+        </el-form>
+        <el-form>
+            <el-button type="success"  @click="pushConfig" style="
+            display: block;
+            width: 90%;
+            margin: auto auto;">增加转生次数</el-button>
+        </el-form>
+        
+        </el-card>
+        <el-card >
+          <div slot="header" class="clearfix">
+            <h2>计算结果</h2>
+          </div>
+        <el-table :data="tableData" style="width: 100%">
+          <el-table-column prop="level" label="等级" width="180">
+          </el-table-column>
+          <el-table-column prop="times" label="转生次数" width="180">
+          </el-table-column>
+          <el-table-column prop="value" label="转生前属性" width="180">
+          </el-table-column>
+          <el-table-column prop="valueAfter" label="转生后1级属性">
+          </el-table-column>
+        </el-table>
+      </el-card>
+      </el-main>
+    </el-container>
+  </div>
+</body>
+
+<script>
+  const config = [
+    {
+      level:105,
+      value:500
+    }
+  ]
+
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        labelPosition: 'right',
+        config: config,
+        initLevel: 105,
+        initValue: 500
+      };
+    },
+    methods: {
+      pushConfig() {
+        let idx = this.config.length-1
+        let data = {...this.config[idx]}
+        data.level = data.level + 5
+        this.config.push(data)
+      },
+      removeConfig(idx) {
+        this.config.splice(idx, 1)
+      },
+      calcAfter(level, value, times) {
+        result = 10 + value * (
+          (times - 1) * 10 +  Math.min(value / 2, 250 + (times-1) * 10) + level /2
+        ) / 1500
+        return Math.floor(result)
+      }
+    },
+    computed: {
+      tableData() {
+        let times = 0
+        ret = []
+        for (item of this.config) {
+          times +=1
+          valueAfter = this.calcAfter(item.level, item.value, times)
+          ret.push({
+            level: item.level,
+            times, times,
+            value: item.value,
+            valueAfter: valueAfter
+          })
+        }
+        console.log(ret)
+        return ret
+      }
+    }
+  })
+</script>
+<style>
+</style>
+
+</html>
